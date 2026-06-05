@@ -40,3 +40,16 @@ Database:
 Version Control:
 - Git
 - GitHub
+
+
+## Parent-Student Relationship
+
+The system will follow a realistic school model.
+
+- One parent account can be linked to multiple students.
+- These linked students are called wards.
+- Parents can view only their own wards' attendance, marks, assignments, and related academic details.
+- Parents cannot view other students' private information.
+- General announcements can be visible to all users.
+
+A separate parent_student relationship table will be used to connect parents and students.
