@@ -74,6 +74,11 @@ A separate parent_student relationship table will be used to connect parents and
 ### parents
 - id
 - user_id
+- phone
+
+### parent_student
+- id
+- parent_id
 - student_id
 
 ### attendance
