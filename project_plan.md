@@ -1,106 +1,351 @@
 # School Management System
 
+## Project Overview
+
+A role-based School Management System built using FastAPI, MySQL, HTML, CSS, and JavaScript.
+
+The system supports:
+
+* Teacher
+* Student
+* Parent
+
+with JWT-based authentication and role-based access control.
+
+---
+
 ## Roles
 
-### Teacher
-- Login
-- View Students
-- Mark Attendance
-- Add Marks
-- Post Assignments
-- Send Announcements
+### Teacher (Admin)
+
+Teachers act as administrators of the system.
+
+Permissions:
+
+* Login
+* Add Students
+* Add Parents
+* Link Parents to Students
+* Create Classes
+* Assign Class Teachers
+* Create Subjects
+* Mark Attendance
+* Add Marks
+* Upload Assignments
+* Post Announcements
+* View Student Records
+
+---
 
 ### Student
-- Login
-- View Attendance
-- View Marks
-- View Assignments
-- View Announcements
+
+Permissions:
+
+* Login
+* View Profile
+* View Attendance
+* View Marks
+* View Assignments
+* View Announcements
+
+---
 
 ### Parent
-- Login
-- View Child Attendance
-- View Child Marks
-- View Assignments
-- View Announcements
 
-## Technology
+Permissions:
 
-Frontend:
-- HTML
-- CSS
-- JavaScript
+* Login
+* View Ward Attendance
+* View Ward Marks
+* View Ward Assignments
+* View Ward Announcements
 
-Backend:
-- FastAPI
+Restrictions:
 
-Database:
-- MySQL
+* Cannot view other students' data
+* Can view only linked wards
 
-Version Control:
-- Git
-- GitHub
+---
 
+## Technology Stack
+
+### Frontend
+
+* HTML
+* CSS
+* JavaScript
+
+### Backend
+
+* FastAPI
+
+### Database
+
+* MySQL
+
+### Authentication
+
+* JWT
+
+### Version Control
+
+* Git
+* GitHub
+
+---
 
 ## Parent-Student Relationship
 
-The system will follow a realistic school model.
+The system follows a realistic school structure.
 
-- One parent account can be linked to multiple students.
-- These linked students are called wards.
-- Parents can view only their own wards' attendance, marks, assignments, and related academic details.
-- Parents cannot view other students' private information.
-- General announcements can be visible to all users.
+* One Parent can have multiple wards.
+* One Student can be linked to one or more parents.
+* Parents can access only their own ward data.
+* Parents cannot access data of other students.
 
+A separate relationship table will be used:
 
-A separate parent_student relationship table will be used to connect parents and students.
+* parent_student
 
+---
 
-## Database Tables
+## Authentication Architecture
+
+A common users table will be used for authentication.
+
+All users:
+
+* Teacher
+* Student
+* Parent
+
+will login through the same authentication system.
+
+JWT tokens will be generated after successful login.
+
+---
+
+## Database Design
 
 ### users
-- id
-- name
-- email
-- password
-- role
+
+Stores login information.
+
+Columns:
+
+* id
+* name
+* email (unique)
+* password_hash
+* role
+* created_at
+
+Roles:
+
+* teacher
+* student
+* parent
+
+---
+
+### teachers
+
+Stores teacher-specific information.
+
+Columns:
+
+* id
+* user_id
+* employee_id
+* department
+* qualification
+* is_admin
+
+---
+
+### classes
+
+Stores class information.
+
+Columns:
+
+* id
+* class_name
+* section
+* class_teacher_id
+
+Examples:
+
+* 10-A
+* 10-B
+* 9-A
+
+---
 
 ### students
-- id
-- user_id
-- roll_number
-- class_name
+
+Stores student-specific information.
+
+Columns:
+
+* id
+* user_id
+* student_id
+* class_id
+* date_of_birth
+
+---
 
 ### parents
-- id
-- user_id
-- phone
+
+Stores parent-specific information.
+
+Columns:
+
+* id
+* user_id
+* phone
+
+---
 
 ### parent_student
-- id
-- parent_id
-- student_id
+
+Links parents and students.
+
+Columns:
+
+* id
+* parent_id
+* student_id
+
+Example:
+
+Parent Rahul
+
+* Student Arjun
+* Student Priya
+
+---
+
+### subjects
+
+Stores subjects assigned to classes.
+
+Columns:
+
+* id
+* subject_name
+* class_id
+* teacher_id
+
+Examples:
+
+* Mathematics
+* English
+* Science
+
+---
 
 ### attendance
-- id
-- student_id
-- date
-- status
+
+Stores daily attendance.
+
+Columns:
+
+* id
+* student_id
+* class_id
+* teacher_id
+* date
+* status
+
+Status:
+
+* Present
+* Absent
+
+---
 
 ### marks
-- id
-- student_id
-- subject
-- marks
+
+Stores examination marks.
+
+Columns:
+
+* id
+* student_id
+* subject_id
+* teacher_id
+* exam_name
+* marks_obtained
+* max_marks
+
+Examples:
+
+* Unit Test 1
+* Mid Exam
+* Final Exam
+
+---
 
 ### assignments
-- id
-- title
-- description
-- due_date
+
+Stores assignments uploaded by teachers.
+
+Columns:
+
+* id
+* class_id
+* subject_id
+* teacher_id
+* title
+* description
+* due_date
+
+---
 
 ### announcements
-- id
-- title
-- description
-- created_at
+
+Stores school announcements.
+
+Columns:
+
+* id
+* title
+* description
+* created_by
+* target_role
+* class_id
+
+Target Roles:
+
+* teacher
+* student
+* parent
+* all
+
+---
+
+## Primary Key Strategy
+
+All tables use:
+
+* INT AUTO_INCREMENT
+
+as the primary key.
+
+---
+
+## Future Enhancements
+
+Possible future modules:
+
+* Fee Management
+* Online Exams
+* Timetable Management
+* Leave Management
+* Result Generation
+* Notification System
+* File Uploads
+* Report Cards
+* Parent-Teacher Meeting Scheduler
