@@ -353,6 +353,17 @@ Columns:
 - student_id
 - status
 
+### assignment_submissions
+
+Columns:
+
+- id
+- assignment_id
+- student_id
+- submission_text
+- submitted_at
+- status
+
 ## Primary Key Strategy
 
 All tables use:
