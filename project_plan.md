@@ -52,4 +52,5 @@ The system will follow a realistic school model.
 - Parents cannot view other students' private information.
 - General announcements can be visible to all users.
 
+
 A separate parent_student relationship table will be used to connect parents and students.
