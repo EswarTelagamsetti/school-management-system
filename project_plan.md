@@ -276,7 +276,7 @@ Columns:
 * student_id
 * subject_id
 * teacher_id
-* exam_name
+* exam_id
 * marks_obtained
 * max_marks
 
@@ -285,6 +285,15 @@ Examples:
 * Unit Test 1
 * Mid Exam
 * Final Exam
+
+### exams
+
+Columns:
+
+- id
+- exam_name
+- class_id
+- exam_date
 
 ---
 
@@ -325,6 +334,24 @@ Target Roles:
 * all
 
 ---
+
+### attendance_sessions
+
+Columns:
+
+- id
+- class_id
+- teacher_id
+- attendance_date
+
+### attendance_records
+
+Columns:
+
+- id
+- session_id
+- student_id
+- status
 
 ## Primary Key Strategy
 
