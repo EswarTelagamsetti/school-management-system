@@ -54,3 +54,48 @@ The system will follow a realistic school model.
 
 
 A separate parent_student relationship table will be used to connect parents and students.
+
+
+## Database Tables
+
+### users
+- id
+- name
+- email
+- password
+- role
+
+### students
+- id
+- user_id
+- roll_number
+- class_name
+
+### parents
+- id
+- user_id
+- student_id
+
+### attendance
+- id
+- student_id
+- date
+- status
+
+### marks
+- id
+- student_id
+- subject
+- marks
+
+### assignments
+- id
+- title
+- description
+- due_date
+
+### announcements
+- id
+- title
+- description
+- created_at
