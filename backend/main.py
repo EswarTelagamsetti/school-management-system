@@ -1,5 +1,11 @@
-from fastapi import FastAPI 
-app=FastAPI()
+from fastapi import FastAPI
+from backend.models import Base
+from backend.database import engine
+
+app = FastAPI()
+
+# Create all database tables automatically when the application starts
+Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def home():
@@ -12,3 +18,4 @@ def about():
         "project": "School Management System",
         "roles": ["Teacher", "Student", "Parent"]
     }
+
