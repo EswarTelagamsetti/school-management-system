@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from backend.models import Base, User
 from backend.database import engine, get_db
 from backend.schemas import UserCreate, UserLogin, Token
-from backend.auth import hash_password, verify_password, create_access_token
+from backend.auth import hash_password, verify_password, create_access_token, get_current_user
+from backend.auth import get_current_teacher
 
 app = FastAPI()
 
@@ -74,3 +75,20 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         "token_type": "bearer"
     }
 
+@app.get("/profile")
+def profile(current_user = Depends(get_current_user)):
+    return {
+        "message": "Welcome",
+        "user": current_user
+    }
+
+
+
+@app.get("/teacher-dashboard")
+def teacher_dashboard(
+    current_user = Depends(get_current_teacher)
+):
+    return {
+        "message": "Welcome Teacher",
+        "user": current_user
+    }
