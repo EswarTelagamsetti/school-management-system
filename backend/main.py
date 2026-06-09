@@ -1,10 +1,17 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from backend.models import Base, User
+
 from backend.database import engine, get_db
-from backend.schemas import UserCreate, UserLogin, Token
-from backend.auth import hash_password, verify_password, create_access_token, get_current_user
-from backend.auth import get_current_teacher
+from backend.models import Base, User, Teacher, Class, Subject, Assignment
+from backend.schemas import (
+    UserCreate, UserLogin, Token,
+    TeacherCreate, ClassCreate, SubjectCreate, AssignmentCreate
+)
+from backend.auth import (
+    hash_password, verify_password, create_access_token,
+    get_current_user, get_current_teacher
+)
+
 
 app = FastAPI()
 
@@ -91,4 +98,167 @@ def teacher_dashboard(
     return {
         "message": "Welcome Teacher",
         "user": current_user
+    }
+
+
+@app.post("/teachers/create-profile")
+def create_teacher_profile(
+    teacher_data: TeacherCreate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_teacher)
+):
+    """Create a teacher profile for the logged in teacher."""
+    existing_profile = db.query(Teacher).filter(Teacher.user_id == current_user["user_id"]).first()
+    if existing_profile:
+        raise HTTPException(status_code=400, detail="Teacher profile already exists")
+
+    new_teacher = Teacher(
+        user_id=current_user["user_id"],
+        employee_id=teacher_data.employee_id,
+        department=teacher_data.department,
+        qualification=teacher_data.qualification,
+        is_admin=True
+    )
+
+    db.add(new_teacher)
+    db.commit()
+    db.refresh(new_teacher)
+
+    return {
+        "message": "Teacher profile created successfully",
+        "teacher": {
+            "id": new_teacher.id,
+            "user_id": new_teacher.user_id,
+            "employee_id": new_teacher.employee_id,
+            "department": new_teacher.department,
+            "qualification": new_teacher.qualification,
+            "is_admin": new_teacher.is_admin
+        }
+    }
+
+
+@app.post("/classes/create")
+def create_class(
+    class_data: ClassCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_teacher)
+):
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user["user_id"]
+    ).first()
+
+    if not teacher:
+        raise HTTPException(status_code=400, detail="Create teacher profile first")
+
+    new_class = Class(
+        class_name=class_data.class_name,
+        section=class_data.section,
+        class_teacher_id=teacher.id
+    )
+
+    db.add(new_class)
+    db.commit()
+    db.refresh(new_class)
+
+    return {
+        "message": "Class created successfully",
+        "class": {
+            "id": new_class.id,
+            "class_name": new_class.class_name,
+            "section": new_class.section,
+            "class_teacher_id": new_class.class_teacher_id
+        }
+    }
+
+@app.post("/subjects/create")
+def create_subject(
+    subject_data: SubjectCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_teacher)
+):
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user["user_id"]
+    ).first()
+
+    if not teacher:
+        raise HTTPException(status_code=400, detail="Create teacher profile first")
+
+    class_obj = db.query(Class).filter(Class.id == subject_data.class_id).first()
+    if not class_obj:
+        raise HTTPException(status_code=400, detail="Class not found. Create class first.")
+
+    new_subject = Subject(
+        subject_name=subject_data.subject_name,
+        class_id=subject_data.class_id,
+        teacher_id=teacher.id
+    )
+
+    db.add(new_subject)
+    db.commit()
+    db.refresh(new_subject)
+
+    return {
+        "message": "Subject created successfully",
+        "subject": {
+            "id": new_subject.id,
+            "subject_name": new_subject.subject_name,
+            "class_id": new_subject.class_id,
+            "teacher_id": new_subject.teacher_id
+        }
+    }
+
+@app.post("/assignments/create")
+def create_assignment(
+    assignment: AssignmentCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_teacher)
+):
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user["user_id"]
+    ).first()
+
+    if not teacher:
+        raise HTTPException(status_code=400, detail="Create teacher profile first")
+
+    class_obj = db.query(Class).filter(Class.id == assignment.class_id).first()
+    if not class_obj:
+        raise HTTPException(status_code=400, detail="Class not found. Create class first.")
+
+    subject_obj = db.query(Subject).filter(Subject.id == assignment.subject_id).first()
+    if not subject_obj:
+        raise HTTPException(status_code=400, detail="Subject not found. Create subject first.")
+
+    new_assignment = Assignment(
+        class_id=assignment.class_id,
+        subject_id=assignment.subject_id,
+        teacher_id=teacher.id,
+        title=assignment.title,
+        description=assignment.description,
+        due_date=assignment.due_date
+    )
+
+    db.add(new_assignment)
+    db.commit()
+    db.refresh(new_assignment)
+
+    return {
+        "message": "Assignment created successfully",
+        "assignment": {
+            "id": new_assignment.id,
+            "class_id": new_assignment.class_id,
+            "subject_id": new_assignment.subject_id,
+            "teacher_id": new_assignment.teacher_id,
+            "title": new_assignment.title,
+            "description": new_assignment.description,
+            "due_date": new_assignment.due_date
+        }
+    }
+
+@app.get("/assignments")
+def get_assignments(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    assignments = db.query(Assignment).all()
+
+    return {
+        "message": "Assignments fetched successfully",
+        "assignments": assignments
     }
